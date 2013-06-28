@@ -48,38 +48,26 @@ static const CGFloat SLCoverViewScale = 1.0;
     [self.view addSubview:_coverFlowView];
     
     // width
-    frame = CGRectMake(10.0, CGRectGetMaxY(frame) + 10.0, 200.0, 20.0);
-    _widthSlider = [self createSliderWithFrame:frame];
-    [self.view addSubview:_widthSlider];
+    _widthSlider = [self addSliderWithMinY:(CGRectGetMaxY(_coverFlowView.frame) + 20.0) labelText:@"Width:"];
     _coverFlowView.coverSize = CGSizeMake(SLCoverViewWidth * _widthSlider.value,
                                               _coverFlowView.coverSize.height);
     
     // height
-    frame = CGRectMake(10.0, CGRectGetMaxY(frame) + 10.0, 200.0, 20.0);
-    _heightSlider = [self createSliderWithFrame:frame];
+    _heightSlider = [self addSliderWithMinY:(CGRectGetMaxY(_widthSlider.frame) + 20.0) labelText:@"Height:"];
     [self.view addSubview:_heightSlider];
     _coverFlowView.coverSize = CGSizeMake(_coverFlowView.coverSize.width,
                                               SLCoverViewHeight * _heightSlider.value);
     
     // space
-    frame = CGRectMake(10.0, CGRectGetMaxY(frame) + 10.0, 200.0, 20.0);
-    _spaceSlider = [self createSliderWithFrame:frame];
-    _spaceSlider.minimumValue = -2.0;
-    _spaceSlider.maximumValue = 2.0;
-    _spaceSlider.value = 0.0;
-    [self.view addSubview:_spaceSlider];
+    _spaceSlider = [self addSliderWithMinY:(CGRectGetMaxY(_heightSlider.frame) + 20.0) labelText:@"Space:"];
     _coverFlowView.coverSpace = _spaceSlider.value * SLCoverViewSpace;
     
     // angle
-    frame = CGRectMake(10.0, CGRectGetMaxY(frame) + 10.0, 200.0, 20.0);
-    _angleSlider = [self createSliderWithFrame:frame];
-    [self.view addSubview:_angleSlider];
+    _angleSlider = [self addSliderWithMinY:(CGRectGetMaxY(_spaceSlider.frame) + 20.0) labelText:@"Angle:"];
     _coverFlowView.coverAngle = _angleSlider.value * SLCoverViewAngle;
     
     // scale
-    frame = CGRectMake(10.0, CGRectGetMaxY(frame) + 10.0, 200.0, 20.0);
-    _scaleSlider = [self createSliderWithFrame:frame];
-    [self.view addSubview:_scaleSlider];
+    _scaleSlider = [self addSliderWithMinY:(CGRectGetMaxY(_angleSlider.frame) + 20.0) labelText:@"Scale:"];
     _coverFlowView.coverScale = _scaleSlider.value * SLCoverViewScale;
 }
 
@@ -138,14 +126,25 @@ static const CGFloat SLCoverViewScale = 1.0;
 
 #pragma mark - Private methods
 
-- (UISlider *)createSliderWithFrame:(CGRect)frame {
-    UILabel *static 
-    UISlider *slider = [[UISlider alloc] initWithFrame:frame];
-    slider.autoresizingMask = UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleTopMargin;
+- (UISlider *)addSliderWithMinY:(CGFloat)minY labelText:(NSString *)labelText {
+    CGRect labelFrame = CGRectMake(20.0, minY, 80.0, 30.0);
+    UILabel *label = [[UILabel alloc] initWithFrame:labelFrame];
+    label.autoresizingMask = UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleTopMargin;
+    label.backgroundColor = [UIColor clearColor];
+    label.font = [UIFont systemFontOfSize:22.0];
+    label.text = labelText;
+    label.textColor = [UIColor darkTextColor];
+    [self.view addSubview:label];
+    
+    CGRect sliderFrame = CGRectMake(CGRectGetMaxX(labelFrame) + 20.0, minY, 200.0, 30.0);
+    sliderFrame.size.width = CGRectGetWidth(self.view.bounds) - CGRectGetMaxX(labelFrame) - 40.0;
+    UISlider *slider = [[UISlider alloc] initWithFrame:sliderFrame];
+    slider.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin;
     slider.minimumValue = 0.0;
     slider.maximumValue = 2.0;
     slider.value = 1.0;
     [slider addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
+    [self.view addSubview:slider];
     return slider;
 }
 
