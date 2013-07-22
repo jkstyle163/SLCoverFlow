@@ -2,8 +2,8 @@
 //  SLCoverFlowView.m
 //  SLCoverFlow
 //
-//  Created by jiapq on 13-6-13.
-//  Copyright (c) 2013年 HNAGroup. All rights reserved.
+//  Created by SmartCat on 13-6-13.
+//  Copyright (c) 2013年 SmartCat. All rights reserved.
 //
 
 #import "SLCoverFlowView.h"
@@ -282,17 +282,6 @@ static const CGFloat SLCoverHeight = 100.0;
     return CATransform3DConcat(rotateTransform, scaleTransform);
 }
 
-//- (CATransform3D)transform3DWithRotation:(CGFloat)angle scale:(CGFloat)scale {
-//    CATransform3D rotateTransform = CATransform3DIdentity;
-//    rotateTransform.m34 = -1.0 / 500.0;
-//    rotateTransform = CATransform3DRotate(rotateTransform, angle, 0.0, 1.0, 0.0);
-//    
-//    CATransform3D scaleTransform = CATransform3DIdentity;
-//    scaleTransform = CATransform3DScale(scaleTransform, scale, scale, 1.0);
-//    
-//    return CATransform3DConcat(rotateTransform, scaleTransform);
-//}
-
 @end
 
 ////////////////////////////////////////////////////////////
@@ -413,7 +402,26 @@ static const CGFloat SLCoverHeight = 100.0;
         CGFloat endOffsetX = _endDraggingVelocity.x > 0 ? (_scrollView.contentOffset.x + distance) : (_scrollView.contentOffset.x - distance);
         
         // calculate the nearby content offset of the middle cover view
-        *targetContentOffset = [self nearByOffsetOfScrollViewContentOffset:CGPointMake(endOffsetX, _scrollView.contentOffset.y)];
+        CGPoint nearByOffset = [self nearByOffsetOfScrollViewContentOffset:CGPointMake(endOffsetX, _scrollView.contentOffset.y)];
+        
+        // avoid boucing back
+        int index = [self nearByIndexOfScrollViewContentOffset:nearByOffset];
+        if (_endDraggingVelocity.x > 0) {
+            if (nearByOffset.x < endOffsetX) {
+                if (index < (_numberOfCoverViews-1)) {
+                    nearByOffset = [self offsetWithCenterCoverViewIndex:(index+1)];
+                }
+            }
+        } else {
+            if (nearByOffset.x > endOffsetX) {
+                if (index > 0) {
+                    nearByOffset = [self offsetWithCenterCoverViewIndex:(index-1)];
+                }
+            }
+        }
+        
+        //
+        *targetContentOffset = nearByOffset;
     }
 }
 

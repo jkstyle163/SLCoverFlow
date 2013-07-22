@@ -2,16 +2,16 @@
 //  ViewController.m
 //  SLCoverFlow
 //
-//  Created by jiapq on 13-6-13.
-//  Copyright (c) 2013年 HNAGroup. All rights reserved.
+//  Created by SmartCat on 13-6-13.
+//  Copyright (c) 2013年 SmartCat. All rights reserved.
 //
 
 #import "ViewController.h"
 #import "SLCoverFlowView.h"
 #import "SLCoverView.h"
 
-static const CGFloat SLCoverViewWidth = 200.0;
-static const CGFloat SLCoverViewHeight = 150.0;
+static const CGFloat SLCoverViewWidth = 150.0;
+static const CGFloat SLCoverViewHeight = 100.0;
 static const CGFloat SLCoverViewSpace = 100.0;
 static const CGFloat SLCoverViewAngle = M_PI_4;
 static const CGFloat SLCoverViewScale = 1.0;
@@ -36,7 +36,7 @@ static const CGFloat SLCoverViewScale = 1.0;
     self.view.backgroundColor = [UIColor whiteColor];
 
     CGRect frame = self.view.bounds;
-    frame.size.height /= 2.0;
+    frame.size.height /= 3.0;
     _coverFlowView = [[SLCoverFlowView alloc] initWithFrame:frame];
     _coverFlowView.backgroundColor = [UIColor lightGrayColor];
     _coverFlowView.delegate = self;
