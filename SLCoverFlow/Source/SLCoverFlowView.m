@@ -78,6 +78,11 @@ static const CGFloat SLCoverHeight = 100.0;
     }
 }
 
+- (void)turnToSpecifiedCoverView:(NSInteger)index
+{
+    self.contentOffset = CGPointMake(index * (_parentView.coverSize.width + _parentView.coverSpace), 0);
+}
+
 #pragma mark - Instance methods
 
 - (void)reloadData {
@@ -315,7 +320,20 @@ static const CGFloat SLCoverHeight = 100.0;
     }
     return self;
 }
-
+- (void)setShowsHorizontalScrollIndicator:(BOOL)showsHorizontalScrollIndicator
+{
+    _showsHorizontalScrollIndicator = showsHorizontalScrollIndicator;
+    _scrollView.showsHorizontalScrollIndicator = showsHorizontalScrollIndicator;
+}
+- (void)setShowsVerticalScrollIndicator:(BOOL)showsVerticalScrollIndicator
+{
+    _showsVerticalScrollIndicator = showsVerticalScrollIndicator;
+    _scrollView.showsVerticalScrollIndicator = showsVerticalScrollIndicator;
+}
+- (void)turnToSpecifiedCoverView:(NSInteger)index
+{
+    [_scrollView turnToSpecifiedCoverView:index];
+}
 - (void)setFrame:(CGRect)frame {
     if (!CGRectEqualToRect(self.frame, frame)) {
         [super setFrame:frame];
@@ -387,44 +405,30 @@ static const CGFloat SLCoverHeight = 100.0;
                      withVelocity:(CGPoint)velocity
               targetContentOffset:(inout CGPoint *)targetContentOffset {
     _endDraggingVelocity = velocity;
- 
+    
     if (_endDraggingVelocity.x == 0) {
         // find the nearby content offset
-        *targetContentOffset = [self nearByOffsetOfScrollViewContentOffset:_scrollView.contentOffset];
+        velocity = CGPointMake(0.3, 0);
+        
+        CGPoint offset = [self nearByOffsetOfScrollViewContentOffset:_scrollView.contentOffset];
+        
+        [scrollView setContentOffset:offset animated:YES];
+        
     } else {
-        // calculate the slide distance and end scrollview content offset
-        CGFloat startVelocityX = fabsf(_endDraggingVelocity.x);
-        CGFloat decelerationRate = 1.0 - _scrollView.decelerationRate;
-
-        CGFloat decelerationSeconds = startVelocityX / decelerationRate;
-        CGFloat distance = startVelocityX * decelerationSeconds - 0.5 * decelerationRate * decelerationSeconds * decelerationSeconds;
         
-        CGFloat endOffsetX = _endDraggingVelocity.x > 0 ? (_scrollView.contentOffset.x + distance) : (_scrollView.contentOffset.x - distance);
-        
-        // calculate the nearby content offset of the middle cover view
-        CGPoint nearByOffset = [self nearByOffsetOfScrollViewContentOffset:CGPointMake(endOffsetX, _scrollView.contentOffset.y)];
-        
-        // avoid boucing back
-        int index = [self nearByIndexOfScrollViewContentOffset:nearByOffset];
-        if (_endDraggingVelocity.x > 0) {
-            if (nearByOffset.x < endOffsetX) {
-                if (index < (_numberOfCoverViews-1)) {
-                    nearByOffset = [self offsetWithCenterCoverViewIndex:(index+1)];
-                }
-            }
-        } else {
-            if (nearByOffset.x > endOffsetX) {
-                if (index > 0) {
-                    nearByOffset = [self offsetWithCenterCoverViewIndex:(index-1)];
-                }
-            }
-        }
-        
-        //
-        *targetContentOffset = nearByOffset;
+        *targetContentOffset = [self nearByOffsetOfScrollViewContentOffset:*targetContentOffset];
     }
 }
-
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    
+    if ([_delegate respondsToSelector:@selector(coverFlowView:slideToIndex:)])
+    {
+        CGFloat mid = CGRectGetMidX(scrollView.bounds);
+        NSInteger index = (int)(mid / (self.coverSpace + self.coverSize.width));
+        [_delegate coverFlowView:self slideToIndex:index];
+    }
+}
 #pragma mark - Private methods
     
 - (NSUInteger)nearByIndexOfScrollViewContentOffset:(CGPoint)contentOffset {
